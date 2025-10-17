@@ -10,12 +10,15 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write ./src/**/*.{ts,tsx,js,jsx}",
     "preview": "vite preview",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:ui": "npx playwright test --ui",
+    "show-report": "npx playwright show-report"
   },
   "dependencies": {
     "@fastify/cors": "9.0.1",
     "@tanstack/react-query": "^5.90.5",
     "clsx": "2.1.1",
+    "dotenv": "^17.2.3",
     "fastify": "4.27.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
