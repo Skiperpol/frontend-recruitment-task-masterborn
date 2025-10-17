@@ -22,10 +22,15 @@ test.describe('Todo App Happy Path', () => {
     
     await helpers.addMultipleTodosViaUI(todos);
     const todoTitles = helpers.getTodoTitles();
-    await expect(todoTitles.nth(0)).toContainText('First todo');
-    await expect(todoTitles.nth(1)).toContainText('Second todo');
-    await expect(todoTitles.nth(2)).toContainText('Third todo');
-  });
+
+    for (let i = 0; i < todos.length; i++) {
+        const expectedTitle = todos[i];
+        
+        await expect(todoTitles.nth(i)).toContainText(expectedTitle);
+    }
+    
+    await expect(todoTitles).toHaveCount(todos.length); 
+});
 
   test('should mark todo as complete', async () => {
     await helpers.addTodoViaUI('Complete this task');
@@ -100,7 +105,13 @@ test.describe('Todo App Happy Path', () => {
     await helpers.clearCompletedTodos();
     
     // 8. Verify only active todos remain
-    await helpers.verifyOnlyActiveTodosRemain(['Walk the dog', 'Call mom']);
+    const completedIndexes = [0, 2];
+        
+    const activeTodos = todos.filter((_todo, index) => {
+        return !completedIndexes.includes(index); 
+    });
+
+    await helpers.verifyOnlyActiveTodosRemain(activeTodos);
     
     // 9. Verify count is updated
     await helpers.verifyTodoCount(2);
