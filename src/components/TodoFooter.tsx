@@ -1,5 +1,5 @@
 import { useTodos } from "../hooks/useTodos";
-import { useDeleteAllTodos } from "../hooks/useTodoMutations";
+import { useDeleteTodo } from "../hooks/useTodoMutations";
 
 /**
  * Footer component for the todo application
@@ -11,7 +11,7 @@ import { useDeleteAllTodos } from "../hooks/useTodoMutations";
  */
 export function TodoFooter() {
   const { data: todos = [] } = useTodos();
-  const deleteAllTodosMutation = useDeleteAllTodos();
+  const deleteTodoMutation = useDeleteTodo();
 
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
@@ -21,7 +21,11 @@ export function TodoFooter() {
     if (completedTodos.length === 0) return;
     
     try {
-      await deleteAllTodosMutation.mutateAsync();
+      await Promise.all(
+        completedTodos.map(todo => 
+          deleteTodoMutation.mutateAsync(todo.id)
+        )
+      );
     } catch (error) {
       console.error("Failed to clear completed todos:", error);
     }
