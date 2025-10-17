@@ -1,35 +1,45 @@
 import { defineConfig, devices } from "@playwright/test";
+import * as dotenv from 'dotenv';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+dotenv.config(); 
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const HOST = process.env.HOST || 'localhost';
+const FRONTEND_PORT = process.env.VITE_PORT || 5173;
+const API_PORT = process.env.API_PORT || 3000;
+
+const FRONTEND_URL = `http://${HOST}:${FRONTEND_PORT}`;
+const API_URL_CHECK = `http://${HOST}:${API_PORT}/todos`; 
+
+
 export default defineConfig({
-  testDir: "./tests",
-  /* Run tests in files in parallel */
+  testDir: "./tests/e2e",
+  
   fullyParallel: false,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
+  
+  webServer: [
+    {
+      command: 'npm run dev:api', 
+      url: API_URL_CHECK,
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'npm run dev', 
+      url: FRONTEND_URL, 
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+  use: {
+    baseURL: FRONTEND_URL,
     trace: "on-first-retry",
   },
-  timeout: 1000, // 1 second
+  
   projects: [
     {
       name: "chromium",
